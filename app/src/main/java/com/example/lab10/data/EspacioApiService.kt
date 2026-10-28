@@ -1,4 +1,4 @@
-package data
+package com.example.lab10.data
 
 import retrofit2.Response
 import retrofit2.http.Body
