@@ -33,3 +33,89 @@ import androidx.navigation.NavHostController
 import com.example.lab10.data.EspacioApiService
 import com.example.lab10.data.EspacioModel
 import kotlinx.coroutines.delay
+
+@Composable
+fun ContenidoEspaciosListado(navController: NavHostController, servicio: EspacioApiService) {
+    val listaEspacios: SnapshotStateList<EspacioModel> = remember { mutableStateListOf() }
+
+    LaunchedEffect(Unit) {
+        val listado = servicio.selectEspacios()
+        listado.forEach { listaEspacios.add(it) }
+    }
+
+    LazyColumn {
+        item {
+            Row(
+                modifier = Modifier.fillParentMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "ID",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.weight(0.1f)
+                )
+                Text(
+                    text = "ESPACIO",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.weight(0.7f)
+                )
+                Text(
+                    text = "Acción",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.weight(0.2f)
+                )
+            }
+        }
+
+        items(listaEspacios) { item ->
+            Row(
+                modifier = Modifier
+                    .padding(start = 8.dp)
+                    .fillParentMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "${item.id}",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.weight(0.1f)
+                )
+                Text(
+                    text = item.nombre,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.weight(0.6f)
+                )
+                IconButton(
+                    onClick = {
+                        navController.navigate("espacioVer/${item.id}")
+                        Log.e("ESPACIO-VER", "ID = ${item.id}")
+                    },
+                    modifier = Modifier.weight(0.1f)
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Edit,
+                        contentDescription = "Editar",
+                        modifier = Modifier.align(Alignment.CenterVertically)
+                    )
+                }
+                IconButton(
+                    onClick = {
+                        navController.navigate("espacioDel/${item.id}")
+                        Log.e("ESPACIO-DEL", "ID = ${item.id}")
+                    },
+                    modifier = Modifier.weight(0.1f)
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Delete,
+                        contentDescription = "Eliminar",
+                        modifier = Modifier.align(Alignment.CenterVertically)
+                    )
+                }
+            }
+        }
+    }
+}
