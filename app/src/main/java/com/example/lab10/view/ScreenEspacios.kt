@@ -119,3 +119,94 @@ fun ContenidoEspaciosListado(navController: NavHostController, servicio: Espacio
         }
     }
 }
+
+@Composable
+fun ContenidoEspacioEditar(
+    navController: NavHostController,
+    servicio: EspacioApiService,
+    pid: Int = 0
+) {
+    var id by remember { mutableStateOf(pid) }
+    var nombre by remember { mutableStateOf("") }
+    var ubicacion by remember { mutableStateOf("") }
+    var aforoMaximo by remember { mutableStateOf("") }
+    var estadoOperativo by remember { mutableStateOf("true") }
+    var grabar by remember { mutableStateOf(false) }
+
+    if (id != 0) {
+        LaunchedEffect(Unit) {
+            val objEspacio = servicio.selectEspacio(id.toString())
+            delay(100)
+            nombre = objEspacio.body()?.nombre ?: ""
+            ubicacion = objEspacio.body()?.ubicacion ?: ""
+            aforoMaximo = objEspacio.body()?.aforoMaximo?.toString() ?: ""
+            estadoOperativo = (objEspacio.body()?.estadoOperativo ?: true).toString()
+        }
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        TextField(
+            value = id.toString(),
+            onValueChange = { },
+            label = { Text("ID (solo lectura)") },
+            readOnly = true,
+            singleLine = true
+        )
+        TextField(
+            value = nombre,
+            onValueChange = { nombre = it },
+            label = { Text("Nombre:") },
+            singleLine = true
+        )
+        TextField(
+            value = ubicacion,
+            onValueChange = { ubicacion = it },
+            label = { Text("Ubicación:") },
+            singleLine = true
+        )
+        TextField(
+            value = aforoMaximo,
+            onValueChange = { aforoMaximo = it },
+            label = { Text("Aforo Máximo:") },
+            singleLine = true
+        )
+        TextField(
+            value = estadoOperativo,
+            onValueChange = { estadoOperativo = it },
+            label = { Text("Estado Operativo (true/false):") },
+            singleLine = true
+        )
+        Button(
+            onClick = {
+                grabar = true
+            },
+            modifier = Modifier.padding(top = 16.dp)
+        ) {
+            Text("Grabar", fontSize = 16.sp)
+        }
+    }
+
+    if (grabar) {
+        val objEspacio = EspacioModel(
+            id = id,
+            nombre = nombre,
+            ubicacion = ubicacion,
+            aforoMaximo = aforoMaximo.toIntOrNull() ?: 0,
+            estadoOperativo = estadoOperativo.toBoolean()
+        )
+
+        LaunchedEffect(Unit) {
+            if (id == 0) {
+                servicio.insertEspacio(objEspacio)
+            } else {
+                servicio.updateEspacio(id.toString(), objEspacio)
+            }
+            grabar = false
+            navController.navigate("espacios")
+        }
+    }
+}
