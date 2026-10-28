@@ -210,3 +210,49 @@ fun ContenidoEspacioEditar(
         }
     }
 }
+
+@Composable
+fun ContenidoEspacioEliminar(
+    navController: NavHostController,
+    servicio: EspacioApiService,
+    id: Int
+) {
+    var showDialog by remember { mutableStateOf(true) }
+    var borrar by remember { mutableStateOf(false) }
+
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = { Text(text = "Confirmar Eliminación") },
+            text = { Text("¿Está seguro de eliminar el Espacio?") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showDialog = false
+                        borrar = true
+                    }
+                ) {
+                    Text("Aceptar")
+                }
+            },
+            dismissButton = {
+                Button(
+                    onClick = {
+                        showDialog = false
+                        navController.navigate("espacios")
+                    }
+                ) {
+                    Text("Cancelar")
+                }
+            }
+        )
+    }
+
+    if (borrar) {
+        LaunchedEffect(Unit) {
+            servicio.deleteEspacio(id.toString())
+            borrar = false
+            navController.navigate("espacios")
+        }
+    }
+}
